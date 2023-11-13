@@ -1167,8 +1167,8 @@ NSString *const WMFLanguageVariantAlertsLibraryVersion = @"WMFLanguageVariantAle
             [self.navigationController popToRootViewControllerAnimated:animated];
             NSDictionary *locationInfo = activity.userInfo;
             
-            CLLocationDegrees latitude = [locationInfo[@"latitude"] floatValue];
-            CLLocationDegrees longitude = [locationInfo[@"longitude"] floatValue];
+            CLLocationDegrees latitude = [locationInfo[@"latitude"] doubleValue];
+            CLLocationDegrees longitude = [locationInfo[@"longitude"] doubleValue];
             CLLocation *location = [[CLLocation alloc]initWithLatitude:latitude longitude:longitude];
             if (location) {
                 [[self placesViewController] updateViewModeToMap];
