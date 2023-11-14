@@ -74,6 +74,33 @@ __attribute__((annotate("returns_localized_nsstring"))) static inline NSString *
     return activity;
 }
 
++ (instancetype)wmf_locationsActivityWithURL:(NSURL *)activityURL {
+    NSURLComponents *components = [NSURLComponents componentsWithURL:activityURL resolvingAgainstBaseURL:NO];
+    NSMutableDictionary *coordinates = [self wmf_extractCoordinatesFromQueryItems:components.queryItems];
+    NSMutableDictionary *userInfoDictionary = coordinates;
+    userInfoDictionary[@"WMFPage"] = @"Location";
+    
+    NSUserActivity *activity = [self wmf_pageActivityWithName:@"Location"];
+    activity.userInfo = userInfoDictionary;
+    return activity;
+}
+
++ (NSMutableDictionary *)wmf_extractCoordinatesFromQueryItems:(NSArray<NSURLQueryItem *> *)queryItems {
+    NSMutableDictionary *coordinates = [NSMutableDictionary dictionary];
+
+    for (NSURLQueryItem *item in queryItems) {
+        if ([item.name isEqualToString:@"lat"]) {
+            NSString *latitude = item.value;
+            [coordinates setValue:latitude forKey:@"latitude"];
+        } else if ([item.name isEqualToString:@"long"]) {
+            NSString *longitude = item.value;
+            [coordinates setValue:longitude forKey:@"longitude"];
+        }
+    }
+
+    return coordinates;
+}
+
 + (instancetype)wmf_exploreViewActivity {
     NSUserActivity *activity = [self wmf_pageActivityWithName:@"Explore"];
     return activity;
@@ -125,6 +152,8 @@ __attribute__((annotate("returns_localized_nsstring"))) static inline NSString *
         return [self wmf_exploreViewActivity];
     } else if ([url.host isEqualToString:@"places"]) {
         return [self wmf_placesActivityWithURL:url];
+    } else if ([url.host isEqualToString:@"location"]) {
+        return [self wmf_locationsActivityWithURL:url];
     } else if ([url.host isEqualToString:@"saved"]) {
         return [self wmf_savedPagesViewActivity];
     } else if ([url.host isEqualToString:@"history"]) {
@@ -223,6 +252,8 @@ __attribute__((annotate("returns_localized_nsstring"))) static inline NSString *
             return WMFUserActivityTypeAppearanceSettings;
         } else if ([page isEqualToString:@"NotificationSettings"]) {
             return WMFUserActivityTypeNotificationSettings;
+        } else if ([page isEqualToString:@"Location"]) {
+            return WMFUserActivityTypeLocation;
         } else {
             return WMFUserActivityTypeSettings;
         }
@@ -292,6 +323,9 @@ __attribute__((annotate("returns_localized_nsstring"))) static inline NSString *
             break;
         case WMFUserActivityTypePlaces:
             host = @"places";
+            break;
+        case WMFUserActivityTypeLocation:
+            host = @"location";
             break;
         case WMFUserActivityTypeExplore:
         default:
